@@ -1,0 +1,18 @@
+#the primary key of article table
+#Fri Mar 16 14:23:40 JST 2018
+buyScore=60
+isTest=true
+lostCut=2
+DL_TGRESHOLD=10000
+settleScore=58
+DL_BASE_MIN=20
+SessionId=
+userCd=
+AVG25=50
+DIFFERENCE=5000
+AVG5=10
+maxTradeCount=10
+ScoreParam=9,6,18,27,0,0,0,12,0
+password=
+AVG75=150
+singleQuantity=0.01
