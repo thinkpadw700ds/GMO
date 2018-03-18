@@ -48,7 +48,6 @@ public class NewBuy implements INewNPL {
         TGRESHOLD = Integer.valueOf(Control.getInstance().getProperty("DL_TGRESHOLD")).intValue();
     }
 
-    private static Logger log = LoggerFactory.getLogger(AiStrategy.class);
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm", Locale.ENGLISH);
     private boolean isTraining = false;
     private MultiLayerConfiguration conf;

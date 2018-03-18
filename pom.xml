@@ -11,8 +11,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+	<maven.compiler.source>1.8</maven.compiler.source>
+	<maven.compiler.target>1.8</maven.compiler.target>
   </properties>
 
   <dependencies>
@@ -22,8 +22,6 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
-    <!-- Below declared dependencies are included for the servers who may complain 
-			about servlet/jstl missing dependency -->
 	<dependency>
 		<groupId>javax.servlet.jsp</groupId>
 		<artifactId>javax.servlet.jsp-api</artifactId>
@@ -59,7 +57,7 @@
 	    <artifactId>jsoup</artifactId>
 	    <version>1.11.2</version>
 	</dependency>
-	<!-- 深度学习 deeplearning4j -->
+	<!--深度学习 deeplearning4j-->
 	<dependency>
 	    <groupId>org.deeplearning4j</groupId>
 	    <artifactId>deeplearning4j-core</artifactId>
@@ -89,7 +87,7 @@
         <groupId>org.deeplearning4j</groupId>  
         <artifactId>deeplearning4j-ui_2.10</artifactId>  
         <version>0.9.1</version>  
-    </dependency> <!--
+    </dependency><!--
 	<dependency>
     	<groupId>org.slf4j</groupId>
 	    <artifactId>slf4j-log4j12</artifactId>
