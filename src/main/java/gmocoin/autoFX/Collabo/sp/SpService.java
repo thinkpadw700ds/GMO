@@ -434,9 +434,9 @@ public class SpService implements IService, Runnable {
             PriceData priceData = getCurrentBTCData(null);
             int price = 0;
             if (isBuy) {
-                price = priceData.closePrice + 1500 / 2 + 1;
+                price = (int) (priceData.closePrice + DIFFERENCE / 2 + 1);
             } else {
-                price = priceData.closePrice - 1500 / 2 - 1;
+                price = (int) (priceData.closePrice - DIFFERENCE / 2 - 1);
             }
             param.put("buySellType", isBuy ? 1 : 2);
             param.put("multiBandType", 0);
@@ -463,9 +463,9 @@ public class SpService implements IService, Runnable {
             }
             int price = 0;
             if (trade.isBuy()) {
-                price = priceData.closePrice - 1500 / 2 - 1;
+                price = (int) (priceData.closePrice - DIFFERENCE / 2 - 1);
             } else {
-                price = priceData.closePrice + 1500 / 2 + 1;
+                price = (int) (priceData.closePrice + DIFFERENCE / 2 + 1);
             }
             String res = session.sendGet(SpComConstants.POSITIONS_URL, new HashMap<>()).toString();
             JSONObject JsonRes;

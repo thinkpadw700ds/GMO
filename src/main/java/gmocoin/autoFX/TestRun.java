@@ -11,9 +11,8 @@ import org.deeplearning4j.nn.conf.Updater;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.multilayer.*;
 import org.deeplearning4j.nn.weights.*;
+import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.*;
-import org.deeplearning4j.ui.stats.*;
-import org.deeplearning4j.ui.storage.*;
 import org.nd4j.linalg.activations.*;
 import org.nd4j.linalg.api.ndarray.*;
 import org.nd4j.linalg.dataset.*;
@@ -23,6 +22,7 @@ import org.nd4j.linalg.indexing.*;
 import org.nd4j.linalg.lossfunctions.*;
 
 import gmocoin.autoFX.Collabo.csv.*;
+import gmocoin.autoFX.strategy.ai.nlp.StockDataIterator;
 import gmocoin.autoFX.strategy.common.*;
 
 public class TestRun {
@@ -36,15 +36,15 @@ public class TestRun {
     private static final int BASE_MIN = 20;
     private static final int TGRESHOLD = 10000;
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm", Locale.ENGLISH);
-
+    private static StockDataIterator iterClassification;
     public static void main(String[] args) throws Exception {
 
         // int[] exampleLengths = makeTrainData(0);
         // int[] exampleLengths = new int[] { 9226, 0 };
-        int miniBatchSize = 1;
         int numPossibleLabels = 4;
-        int numEpochs = 100;
-        int generateSamplesEveryNMinibatches = 5;
+        int numEpochs = 2;
+        int miniBatchSize = 1;
+        int generateSamplesEveryNMinibatches = numEpochs;
         boolean regression = true;
 
         // CSVRecordReader reader = new CSVRecordReader(0, ",");
@@ -58,8 +58,8 @@ public class TestRun {
         // SequenceRecordReaderDataSetIterator iterClassification = new SequenceRecordReaderDataSetIterator(reader,
         // miniBatchSize, numPossibleLabels, 0);
         /*************************************************/
-        StockDataIterator iterClassification = new StockDataIterator();
-        iterClassification.loadData(miniBatchSize, 50);
+        iterClassification = new StockDataIterator();
+        iterClassification.loadData(miniBatchSize, 100);
         // DataSet allData = iterClassification.next();
         // SplitTestAndTrain testAndTrain = allData.splitTestAndTrain(0.7); // Use 70% of data for training
         //
@@ -84,40 +84,45 @@ public class TestRun {
         // .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(BASE_MIN << 1)
         // .tBPTTBackwardLength(BASE_MIN << 1).pretrain(false).backprop(true).build();
         /********************************************************************************/
-        // MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder().seed(12345).iterations(20)
-        // .activation(Activation.TANH).weightInit(WeightInit.XAVIER).learningRate(0.001).regularization(true)
-        // .l2(1e-4).list()
-        // .layer(0, new GravesLSTM.Builder().nIn(iterClassification.inputColumns()).nOut(500).build())
-        // .layer(1, new DenseLayer.Builder().nIn(500).nOut(150).build())
-        // .layer(2,
-        // new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
-        // .activation(Activation.SOFTMAX).nIn(150).nOut(numPossibleLabels).build())
-        // .backpropType(BackpropType.Standard).tBPTTForwardLength(BASE_MIN << 6)
-        // .tBPTTBackwardLength(BASE_MIN << 6).pretrain(true).backprop(true).build();
+//         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder().seed(12345).iterations(2)
+//         .activation(Activation.TANH).weightInit(WeightInit.XAVIER).learningRate(0.001).regularization(true)
+//         .l2(1e-4).list()
+//         .layer(0, new GravesLSTM.Builder().nIn(20).nOut(500).build())
+//         .layer(1, new DenseLayer.Builder().nIn(500).nOut(150).build())
+//         .layer(2,
+//         new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+//         .activation(Activation.RRELU).nIn(150).nOut(1).build())
+//         .backpropType(BackpropType.Standard).tBPTTForwardLength(BASE_MIN << 6)
+//         .tBPTTBackwardLength(BASE_MIN << 6).pretrain(false).backprop(true).build();
         /********************************************************************************/
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT).iterations(1).learningRate(0.0001)
-                .rmsDecay(0.5).seed(12345).regularization(true).l2(0.001).weightInit(WeightInit.XAVIER)
+                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+                .iterations(1).learningRate(0.01)
+                .activation(Activation.TANH)
+//                .rmsDecay(0.5)
+                .seed(12345).regularization(true).l2(0.1).weightInit(WeightInit.XAVIER)
                 .updater(Updater.RMSPROP).list()
-                .layer(0, new GravesLSTM.Builder().nIn(20).nOut(50).activation(Activation.TANH).build())
-                .layer(1, new GravesLSTM.Builder().nIn(50).nOut(50).activation(Activation.TANH).build())
-                .layer(2, new GravesLSTM.Builder().nIn(50).nOut(10).activation(Activation.TANH).build())
-                .layer(3, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MSE).activation(Activation.IDENTITY)
-                        .nIn(10).nOut(1).build())
+                .layer(0, new GravesLSTM.Builder().nIn(20).nOut(100).build())
+                .layer(1, new GravesLSTM.Builder().nIn(100).nOut(1000).build())
+                .layer(2, new GravesLSTM.Builder().nIn(1000).nOut(20).build())
+                .layer(3, new GravesLSTM.Builder().nIn(20).nOut(2).build())
+                .layer(4, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MSE).activation(Activation.IDENTITY)
+                        .nIn(2).nOut(1).build())
+                .backpropType(BackpropType.Standard)
                 .pretrain(false).backprop(true).build();
         MultiLayerNetwork net = new MultiLayerNetwork(conf);
 
         net.init();
-        UIServer uiServer = UIServer.getInstance();
-        // 设置网络信息（随时间变化的梯度、分值等）的存储位置。这里将其存储于内存。
-        StatsStorage statsStorage = new InMemoryStatsStorage(); // 或者： new FileStatsStorage(File)，用于后续的保存和载入
+//        UIServer uiServer = UIServer.getInstance();
+//        // 设置网络信息（随时间变化的梯度、分值等）的存储位置。这里将其存储于内存。
+//        StatsStorage statsStorage = new InMemoryStatsStorage(); // 或者： new FileStatsStorage(File)，用于后续的保存和载入
 
         // 将StatsStorage实例连接至用户界面，让StatsStorage的内容能够被可视化
 
-        uiServer.attach(statsStorage);
+//        uiServer.attach(statsStorage);
 
-        net.setListeners(new StatsListener(statsStorage));
-        // net.setListeners(new ScoreIterationListener(1));
+//        net.setListeners(new StatsListener(statsStorage));
+         net.setListeners(new ScoreIterationListener(1));
 
         // Print the number of parameters in the network (and for each layer)
 
@@ -135,13 +140,7 @@ public class TestRun {
         int miniBatchNumber = 0;
         int trainsize = 8000;
         for (int i = 0; i < numEpochs; i++) {
-            int j = 0;
-            net.rnnClearPreviousState();
             while (iterClassification.hasNext()) {
-                if (j == trainsize) {
-                    break;
-                }
-                j++;
                 DataSet ds = iterClassification.next();
                 // normalizer.fit(ds); // Collect the statistics (mean/stdev) from the training data. This does not modify the input data
                 // // // 标准化数据，应该是要转为0-1的float？？？
@@ -154,7 +153,7 @@ public class TestRun {
                     System.out.println("--------------------");
 
                     System.out.println("Completed "
-                            + miniBatchNumber / numEpochs / iterClassification.totalExamples()
+                            + miniBatchNumber *100 / numEpochs / iterClassification.totalExamples()
                             + "% minibatches of size "
                             + miniBatchSize
                             + "x"
@@ -179,17 +178,18 @@ public class TestRun {
         }
         // reader.initialize(new NumberedFileInputSplit("E:/workspace/gitAutoFX/ai/work/DATA/nlpData%d.csv", 1, 1));
 
-        StringBuffer result = new StringBuffer();
         // net.rnnClearPreviousState();
         int j = 0;
-        List<DataSet> sdList = new ArrayList<>();
-        INDArray sfm = Nd4j.create(new int[] { 1, 20, trainsize + 1 }, 'f');
-        INDArray sfm1 = Nd4j.create(new int[] { 20, trainsize + 1 }, 'f');
+//        List<DataSet> sdList = new ArrayList<>();
+//        INDArray sfm = Nd4j.create(new int[] { 1, 20, trainsize + 1 }, 'f');
+//        INDArray sfm1 = Nd4j.create(new int[] { 20, trainsize + 1 }, 'f');
 
         iterClassification.reset();
         while (iterClassification.hasNext()) {
+            StringBuffer result = new StringBuffer();
             // net.rnnClearPreviousState();
             DataSet testData = iterClassification.next();
+//            net.fit(testData);
             INDArray outarry = null;
             // boolean trainFlg = true;
             // if (j++ < trainsize) {
@@ -208,7 +208,7 @@ public class TestRun {
             // for (INDArray arr : list) {
             // normalizer.fit(testData);
             // normalizer.transform(testData);
-            // outarry = net.rnnTimeStep(testData.getFeatureMatrix());
+//             outarry = net.rnnTimeStep(testData.getFeatureMatrix());
             outarry = net.output(testData.getFeatureMatrix());
             // }
             // sdList.add(testData);
@@ -223,11 +223,12 @@ public class TestRun {
             // outarry = outarry.get(NDArrayIndex.point(0), NDArrayIndex.all(), NDArrayIndex.point(outarry.size(2) - 1));
             val = toPossableLabel(outarry);
             result.append(j).append(",").append(val).append(SP);
-            result.append(j++).append(",").append(toPossableLabel(testData.getLabels())).append(SP);
+            result.append(j++).append(",").append(toPossableLabel(testData.getLabels())).append(SP).append(SP);
+            System.out.println(result.toString());
             // }
         }
 
-        System.out.println(result.toString());
+//        System.out.println(result.toString());
         // eval.eval(testData.getLabels(), output);
         System.out.println("-------------------------------------------------------");
         // System.out.println(eval.stats());
@@ -243,6 +244,7 @@ public class TestRun {
         for (int i = 0; i < outarry.size(2); i++) {
             int val = 0;
             double a = outarry.get(NDArrayIndex.point(0), NDArrayIndex.all(), NDArrayIndex.point(i)).getDouble(0);
+//            val = (int) iterClassification.antiNomolize(a,iterClassification.getMaxArr()[0]);
             if (a < 0.25) {
                 val = 0;
             } else if (a < 0.5) {

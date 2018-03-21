@@ -65,7 +65,7 @@ public class StatusWin extends JFrame {
                 public void run() {
                     while (true) {
                         try {
-                            int curVal = service.getData().getCurrent();
+                            int curVal = (int) service.getData().getCurrent();
                             currentPLabel.setText("现价：" + curVal);
                             profitLossPLabel.setText("总损益："
                                     + service.getProfitLoss()

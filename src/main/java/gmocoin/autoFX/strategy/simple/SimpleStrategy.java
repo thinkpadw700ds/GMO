@@ -111,7 +111,7 @@ public class SimpleStrategy extends absStrategy {
             if ((prevAvg25 < prevAvg75) && (avg25 > prevAvg75)) {
                 score += 15;
             }
-            price = statisticsData.getCurrent() + DIFFERENCE / 2;
+            price = (int) (statisticsData.getCurrent() + DIFFERENCE / 2);
             // System.out.println("doTread score:"+score + " " +"多");
             newTrade(score, true, statisticsData, isTest ? buyScore : BUY_SCORE);
 
@@ -126,7 +126,7 @@ public class SimpleStrategy extends absStrategy {
             if ((prevAvg25 > prevAvg75) && (avg25 < prevAvg75)) {
                 score += 15;
             }
-            price = statisticsData.getCurrent() - DIFFERENCE / 2;
+            price = (int) (statisticsData.getCurrent() - DIFFERENCE / 2);
             // System.out.println("doTread score:"+score + " " +("空"));
             newTrade(score - 5, false, statisticsData, isTest ? buyScore : BUY_SCORE);
 
@@ -138,9 +138,9 @@ public class SimpleStrategy extends absStrategy {
         if (score > passedScore) {
             int price = 0;
             if (isbuy) {
-                price = statisticsData.getCurrent() + DIFFERENCE / 2;
+                price = (int) (statisticsData.getCurrent() + DIFFERENCE / 2);
             } else {
-                price = statisticsData.getCurrent() - DIFFERENCE / 2;
+                price = (int) (statisticsData.getCurrent() - DIFFERENCE / 2);
             }
 
             if (!this.isTest) {
@@ -177,7 +177,7 @@ public class SimpleStrategy extends absStrategy {
         }
         boolean result = false;
         StatisticsData statisticsData = this.sdata;
-        int currentPrice = statisticsData.getCurrent();
+        int currentPrice = (int) statisticsData.getCurrent();
         int price = 0;
         int prof = (int)(30f * 100.0 * this.singleQuantity);
         int avg5 = statisticsData.getLastAvg5Val();
@@ -268,7 +268,7 @@ public class SimpleStrategy extends absStrategy {
         }
 
         PriceData currentDate = statisticsData.getLastVal();
-        int currentPrice = statisticsData.getCurrent();
+        int currentPrice = (int) statisticsData.getCurrent();
         int avg5 = statisticsData.getLastAvg5Val();
         int avg25 = statisticsData.getLastAvg25Val();
         int avg75 = statisticsData.getLastAvg75Val();
@@ -322,7 +322,7 @@ public class SimpleStrategy extends absStrategy {
             param = this.scoreParam;
         }
         PriceData currentDate = statisticsData.getLastVal();
-        int currentPrice = statisticsData.getCurrent();
+        int currentPrice = (int) statisticsData.getCurrent();
         int avg5 = statisticsData.getLastAvg5Val();
         int avg25 = statisticsData.getLastAvg25Val();
         int avg75 = statisticsData.getLastAvg75Val();

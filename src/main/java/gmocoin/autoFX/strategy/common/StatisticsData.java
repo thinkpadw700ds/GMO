@@ -32,13 +32,13 @@ public class StatisticsData {
     private List<Integer> avg25List;
     private List<Integer> avg75List;
 
-    private int max5 = 0;
-    private int max25 = 0;
-    private int max75 = 0;
+    private double max5 = 0;
+    private double max25 = 0;
+    private double max75 = 0;
 
-    private int min5 = 0;
-    private int min25 = 0;
-    private int min75 = 0;
+    private double min5 = 0;
+    private double min25 = 0;
+    private double min75 = 0;
 
     private int trend5 = -1;
     private int trend25 = -1;
@@ -52,7 +52,7 @@ public class StatisticsData {
     private double prevSlop25 = -1;
     private double prevSlop75 = -1;
 
-    private int current = 0;
+    private double current = 0;
 
     private static StatisticsData instance;
     private static int MAX_SIZE = 100000;
@@ -107,9 +107,9 @@ public class StatisticsData {
                         this.avg75List.add(avg75);
                     }
 
-                    int[] maxmin5 = getMaxMin(AVG5);
-                    int[] maxmin25 = getMaxMin(AVG25);
-                    int[] maxmin75 = getMaxMin(AVG75);
+                    double[] maxmin5 = getMaxMin(AVG5);
+                    double[] maxmin25 = getMaxMin(AVG25);
+                    double[] maxmin75 = getMaxMin(AVG75);
 
                     this.max5 = maxmin5[0];
                     this.min5 = maxmin5[1];
@@ -229,10 +229,10 @@ public class StatisticsData {
         return avg;
     }
 
-    private int[] getMaxMin(int width) {
-        int max = 0;
-        int min = this.dataList.get(0).lowPrice;
-        int[] result = new int[2];
+    private double[] getMaxMin(int width) {
+    	double max = 0.0;
+        double min = this.dataList.get(0).lowPrice;
+        double[] result = new double[2];
         if (width > this.dataList.size()) {
             width = this.dataList.size();
         }
@@ -403,31 +403,31 @@ public class StatisticsData {
         return avg75List.get(avg75List.size() - 1);
     }
 
-    public int getMax5() {
+    public double getMax5() {
         return max5;
     }
 
-    public int getMin5() {
+    public double getMin5() {
         return min5;
     }
 
-    public int getMax25() {
+    public double getMax25() {
         return max25;
     }
 
-    public int getMin25() {
+    public double getMin25() {
         return min25;
     }
 
-    public int getMax75() {
+    public double getMax75() {
         return max75;
     }
 
-    public int getMin75() {
+    public double getMin75() {
         return min75;
     }
 
-    public int getCurrent() {
+    public double getCurrent() {
         return this.current;
     }
 

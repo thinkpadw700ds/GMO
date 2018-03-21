@@ -1,4 +1,4 @@
-package gmocoin.autoFX;
+package gmocoin.autoFX.strategy.ai.nlp;
 
 import java.io.*;
 import java.util.*;
@@ -68,9 +68,11 @@ public class StockDataIterator implements DataSetIterator {
     @SuppressWarnings("boxing")
     private void resetDataRecord() {
         dataRecord.clear();
-        int total = (dataList.size() - BASE_MIN) / exampleLength + 1;
+        int total = (dataList.size() - BASE_MIN)  / exampleLength + 1;
         for (int i = 0; i < total; i++) {
-            dataRecord.add(i * exampleLength);
+        	if (i < totalExamples()){
+        		dataRecord.add(i * exampleLength );
+        	}
         }
     }
 
@@ -85,6 +87,12 @@ public class StockDataIterator implements DataSetIterator {
         List<PriceData> bchList = rwcsv.rCsv2BCHPriceData();
         List<PriceData> ltcList = rwcsv.rCsv2LTCPriceData();
         List<PriceData> xrpList = rwcsv.rCsv2XRPPriceData();
+        btcList.sort(new Comparator<PriceData>() {
+			@Override
+			public int compare(PriceData o1, PriceData o2) {
+				return (int) (Long.valueOf(o1.datetime)-Long.valueOf(o2.datetime));
+			}
+		});
         for (PriceData btc : btcList) {
             PriceData eth = findPriceData(ethList, btc.datetime);
             PriceData bch = findPriceData(bchList, btc.datetime);
@@ -204,7 +212,9 @@ public class StockDataIterator implements DataSetIterator {
                     declineFlg = true;
                 }
                 double val = 0;
-                if (riseFlg) {
+                if (S >= (Math.abs(avgVal - curData[0].getAvg()) << 1)){
+                	val = 0.875;
+                }else if (riseFlg) {
                     val = 0.125;
                 } else if (declineFlg) {
                     val = 0.375;
@@ -216,14 +226,15 @@ public class StockDataIterator implements DataSetIterator {
 
                 int d = -1;
                 for (PriceData pd : curData) {
-                    input.putScalar(new int[] { i, ++d, c }, pd.openPrice / maxNum[d]);
-                    input.putScalar(new int[] { i, ++d, c }, pd.closePrice / maxNum[d]);
-                    input.putScalar(new int[] { i, ++d, c }, pd.highPrice / maxNum[d]);
-                    input.putScalar(new int[] { i, ++d, c }, pd.lowPrice / maxNum[d]);
+                    input.putScalar(new int[] { i, ++d, c }, nomolize(pd.openPrice,maxNum[d]));
+                    input.putScalar(new int[] { i, ++d, c }, nomolize(pd.closePrice,maxNum[d]));
+                    input.putScalar(new int[] { i, ++d, c }, nomolize(pd.highPrice,maxNum[d]));
+                    input.putScalar(new int[] { i, ++d, c }, nomolize(pd.lowPrice,maxNum[d]));
                 }
 
                 // 构造label向量
                 label.putScalar(new int[] { i, 0, c }, val);
+//                label.putScalar(new int[] { i, 0, c }, nomolize(avgVal,maxNum[0]));
                 curData = nextData;
             }
             if (dataRecord.size() <= 0) {
@@ -234,6 +245,16 @@ public class StockDataIterator implements DataSetIterator {
         return new DataSet(input, label);
     }
 
+    private double nomolize(double a, double max){
+    	double val = a / max*a / max*a / max *2-1;
+    	return val;
+    }
+    
+    public double antiNomolize(double a, double max){
+    	double val = Math.pow((a + 1)/2, 1.0/3.0)*max;
+    	return val;
+    }
+    
     public int batch() {
         return batchNum;
     }
@@ -251,7 +272,7 @@ public class StockDataIterator implements DataSetIterator {
     }
 
     public int totalExamples() {
-        return (dataList.size()) / exampleLength;
+        return (dataList.size() - BASE_MIN)  / exampleLength;
     }
 
     public int inputColumns() {
@@ -288,5 +309,22 @@ public class StockDataIterator implements DataSetIterator {
     public boolean resetSupported() {
         // TODO Auto-generated method stub
         return false;
+    }
+    
+
+    public INDArray list2NDArray(List<PriceData[]> currentPdsList){
+    	INDArray input = Nd4j.create(new int[] { 1, VECTOR_SIZE, currentPdsList.size() }, 'f');
+    	int i=-1;
+    	for(PriceData[] pds:currentPdsList){
+    		int j=-1;
+    		i++;
+    		for(PriceData pd:pds){
+    			input.putScalar(new int[] { 1, ++j, i }, nomolize(pd.openPrice,maxNum[j]));
+                input.putScalar(new int[] { 1, ++j, i }, nomolize(pd.closePrice,maxNum[j]));
+                input.putScalar(new int[] { 1, ++j, i }, nomolize(pd.highPrice,maxNum[j]));
+                input.putScalar(new int[] { 1, ++j, i }, nomolize(pd.lowPrice,maxNum[j]));
+    		}
+    	}
+    	return input;
     }
 }

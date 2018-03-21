@@ -3,6 +3,12 @@ package gmocoin.autoFX.strategy.common;
 import org.json.*;
 
 public class PriceData {
+    public String datetime;
+    public double openPrice;
+    public double closePrice;
+    public double highPrice;
+    public double lowPrice;
+    
     public PriceData() {
         this.datetime = "000000000000";
     };
@@ -10,30 +16,24 @@ public class PriceData {
     public PriceData(JSONObject dataJson) {
         try {
             this.datetime = dataJson.getString("datetime");
-            this.openPrice = dataJson.getInt("openPrice");
-            this.closePrice = dataJson.getInt("closePrice");
-            this.highPrice = dataJson.getInt("highPrice");
-            this.lowPrice = dataJson.getInt("lowPrice");
+            this.openPrice = dataJson.getDouble("openPrice");
+            this.closePrice = dataJson.getDouble("closePrice");
+            this.highPrice = dataJson.getDouble("highPrice");
+            this.lowPrice = dataJson.getDouble("lowPrice");
         } catch (JSONException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
 
-    public String datetime;
-    public int openPrice;
-    public int closePrice;
-    public int highPrice;
-    public int lowPrice;
-
     public long getAvg() {
-        int avg = openPrice + closePrice + highPrice + lowPrice;
+        long avg = (long) (openPrice + closePrice + highPrice + lowPrice);
         return avg >> 2;
     }
 
-    public int getMaxFluctuation() {
-        int max = openPrice;
-        int min = openPrice;
+    public double getMaxFluctuation() {
+    	double max = openPrice;
+    	double min = openPrice;
         if (closePrice > max) {
             max = closePrice;
         }
@@ -55,7 +55,7 @@ public class PriceData {
         return max - min;
     }
 
-    public int getCloseOpenFluct() {
+    public double getCloseOpenFluct() {
         return closePrice - openPrice;
     }
 

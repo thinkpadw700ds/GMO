@@ -41,12 +41,12 @@ public class Trade {
         return priceData;
     }
 
-    public int getProfitLoss(int current) {
+    public int getProfitLoss(double d) {
         int val = 0;
         if (settlement) {
             return this.profitLoss;
         }
-        val = (int)((current - price) * quantity);
+        val = (int)((d - price) * quantity);
         if (!isBuy) {
             val = 0 - val;
         }

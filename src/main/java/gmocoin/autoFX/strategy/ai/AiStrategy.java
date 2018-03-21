@@ -55,10 +55,13 @@ public class AiStrategy extends absStrategy {
         try {
 	    	PriceData[] currentPDs = this.service.getCurrentPDs();
 	    	if(currentPDs[0]!= null){
-	            Date lastTrainDateTime = this.newBuy.getStartDateTime();
+//	            Date lastTrainDateTime = this.newBuy.getStartDateTime();
 				Date currentDate = sdf.parse(currentPDs[0].datetime);
 				Calendar cal = Calendar.getInstance();
 				cal.setTimeZone(TimeZone.getTimeZone("UTC"));
+				cal.setTime(currentDate);
+				cal.add(Calendar.MINUTE,-(BASE_MIN<<3));
+				Date lastTrainDateTime = cal.getTime();
 				while(!lastTrainDateTime.equals(currentDate)){
 					cal.setTime(lastTrainDateTime);
 					cal.add(Calendar.MINUTE,1);
@@ -83,14 +86,14 @@ public class AiStrategy extends absStrategy {
             	this.datetime = currentPDs[0].datetime;
                 this.trainList.add(currentPDs);
                 this.prevPrediction = this.prediction;
-                this.prediction = newBuy.outPut(trainList);
+                if(trainList.size() >= (BASE_MIN<<2)){
+                	this.prediction = newBuy.outPut(trainList);
+                	trainList.remove(0);
+                }
 				if(this.prediction > -1){
                 	firstOutFlg = false;
                 }
                 System.out.println("label:" + this.prediction);
-                if(!firstOutFlg){
-                	trainList.clear();
-                }
             }
             super.run();
         } catch (JSONException e) {
@@ -174,9 +177,9 @@ public class AiStrategy extends absStrategy {
     private void newTrade(boolean isbuy, StatisticsData statisticsData) {
         int price = 0;
         if (isbuy) {
-            price = statisticsData.getCurrent() + DIFFERENCE / 2;
+            price = (int) (statisticsData.getCurrent() + DIFFERENCE / 2);
         } else {
-            price = statisticsData.getCurrent() - DIFFERENCE / 2;
+            price = (int) (statisticsData.getCurrent() - DIFFERENCE / 2);
         }
         Trade trade;
         trade = new Trade(isbuy, statisticsData.getLastVal(), price, this.singleQuantity);
@@ -190,21 +193,21 @@ public class AiStrategy extends absStrategy {
 
     @Override
     protected boolean doSettlement() {
-        int currentPrice = this.sdata.getCurrent();
+    	double currentPrice = this.sdata.getCurrent();
         int prof = (int)(30f * 100.0 * this.singleQuantity);
-        int price = 0;
+        double price = 0;
         for (Trade trade : tradeList) {
             int cut = 0;
             boolean doSettle = false;
             if (trade.isBuy()) {
                 price = currentPrice - DIFFERENCE / 2;
-                cut = 100 - currentPrice * 100 / trade.getPrice();
+                cut = (int) (100 - currentPrice * 100 / trade.getPrice());
                 if (this.prediction != 0 && this.prediction > -1) {
                     doSettle = true;
                 }
             } else {
                 price = currentPrice + DIFFERENCE / 2;
-                cut = currentPrice * 100 / trade.getPrice() - 100;
+                cut = (int) (currentPrice * 100 / trade.getPrice() - 100);
                 if (this.prediction != 1 && this.prediction > -1) {
                     doSettle = true;
                 }
@@ -215,7 +218,7 @@ public class AiStrategy extends absStrategy {
                 doSettle = true;
             }
             if (doSettle) {
-                trade.doSettlement(price);
+                trade.doSettlement((int)price);
                 liveTradeSize--;
             }
         }

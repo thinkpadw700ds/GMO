@@ -44,7 +44,7 @@ public abstract class absStrategy implements IStrategy {
     protected abstract boolean doSettlement();
 
     public int getProfitLoss() {
-        int current = this.sdata.getCurrent();
+    	double current = this.sdata.getCurrent();
         int result = 0;
         for (Trade trade : tradeList) {
             if (trade.isBuy()) {
@@ -97,7 +97,7 @@ public abstract class absStrategy implements IStrategy {
     }
 
     public int getVaildProfitLoss() {
-        int current = this.sdata.getCurrent();
+    	double current = this.sdata.getCurrent();
         int result = 0;
         for (Trade trade : tradeList) {
             if (trade.isSettlement()) {
